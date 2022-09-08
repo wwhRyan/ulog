@@ -1,3 +1,4 @@
+#include <stdint.h>
 #include <stdio.h>
 #include "ulog.h"
 
@@ -27,6 +28,15 @@ void my_file_logger(ulog_level_t severity, char *msg)
          msg);
 }
 
+#define EXCUTE_ONCE(x)                     \
+    do {                                   \
+        static uint8_t once##__LINE__ = 0; \
+        if (once##__LINE__ == 0) {         \
+            once##__LINE__ = 1;            \
+            x;                             \
+        }                                  \
+    } while (0)
+
 int main()
 {
   int arg = 42;
@@ -54,4 +64,11 @@ int main()
   ULOG_UNSUBSCRIBE(my_file_logger);
 
   ULOG_INFO("Info, arg=%d", arg); // logs to console only
+
+  for (int i = 0; i < 3; i++) {
+      EXCUTE_ONCE(ULOG_INFO("excute_once test firstly."));
+  }
+  for (int i = 0; i < 3; i++) {
+      EXCUTE_ONCE(ULOG_INFO("excute_once test secondly."));
+  }
 }
